@@ -1,0 +1,44 @@
+
+from cryptopals import *
+
+
+prefix = bytes("comment1=cooking%20MCs;userdata=", 'utf-8')
+suffix = bytes(";comment2=%20like%20a%20pound%20of%20bacon", 'utf-8')
+
+key = random_key()
+iv = random_key()
+
+
+def encrypt(data):
+    data = data.replace(';', '').replace('=', '')
+    plain = bytes(data, 'utf-8')
+    plain = pkcs7_pad(prefix + plain + suffix)
+    return encrypt_aes_cbc(plain, key, iv)
+
+
+def is_admin(cipher):
+    plain = decrypt_aes_cbc(cipher, key, iv)
+    plain = pkcs7_unpad(plain)
+    print(plain)
+    data = plain.decode()
+    print(data)
+    return ";admin=true;" in data
+
+
+n = -len(prefix) % 16
+data = "A" * (n+16)
+cipher = encrypt(data)
+print(cipher)
+
+s = ";admin=true;"
+while len(s) < 16:
+    s = '\x00' + s
+
+print(len(prefix), n)
+block = cipher[n:n+16]
+block = xor(block, cipher[n+16:n+32])
+#block = xor(block, bytes(s, 'utf-8'))
+cipher = cipher[:n] + block + cipher[n+16:]
+print(cipher)
+
+is_admin(cipher)
