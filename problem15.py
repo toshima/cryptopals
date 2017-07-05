@@ -11,13 +11,13 @@ expected = bytes("ICE ICE BABY", 'utf-8')
 assert(pkcs7_unpad(a) == expected)
 
 try:
-    assert_exception(pkcs7_unpad, b)
+    pkcs7_unpad(b)
     raise AssertionError()
 except ValueError:
     pass
 
 try:
-    assert_exception(pkcs7_unpad, c)
+    pkcs7_unpad(c)
     raise AssertionError()
 except ValueError:
     pass
